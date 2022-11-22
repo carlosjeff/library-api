@@ -1,10 +1,10 @@
 import { ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface } from "class-validator";
 import { roles } from "../models/roles";
 
-@ValidatorConstraint({ name: 'customText', async: false })
-export class CustomTextLength implements ValidatorConstraintInterface {
+@ValidatorConstraint({ name: 'typesOfRoles', async: false })
+export class TypesOfRoles implements ValidatorConstraintInterface {
     validate(text: string, args: ValidationArguments) {
-        return roles.indexOf(text) === 0;
+        return roles.indexOf(text) >= 0;
     }
 
     defaultMessage(args: ValidationArguments) {
