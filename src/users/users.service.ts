@@ -33,6 +33,11 @@ export class UsersService {
         return await this.usersRepository.findOne({ where: { id } });
     }
 
+    public async getByEmail(email: string): Promise<User> {
+
+        return await this.usersRepository.findOne({ where: { email } });
+    }
+
     public async update(id: number, updateDto: UpdateUserDto): Promise<UpdateResult> {
 
         if (!(await this.getById(id))) throw new NotFoundException(`Id ${id} não encontrado`);

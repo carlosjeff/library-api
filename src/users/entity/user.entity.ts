@@ -13,8 +13,8 @@ export class User {
     @Column({ length: 100, unique: true })
     email: string;
 
-    @Column({ length: 100, select: false })
-    @Exclude({ toPlainOnly: true })
+    @Column({ length: 100 })
+    @Exclude()
     password: string;
 
     @Column({ length: 20 })

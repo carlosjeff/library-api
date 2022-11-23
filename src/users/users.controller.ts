@@ -1,6 +1,9 @@
-import { Body, ClassSerializerInterceptor, Controller, Delete, Get, HttpStatus, InternalServerErrorException, NotFoundException, Param, ParseIntPipe, Post, Put, Res, UseInterceptors } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, HttpStatus, InternalServerErrorException, NotFoundException, Param, ParseIntPipe, Post, Put, Res, UseGuards, UseInterceptors } from '@nestjs/common';
 import { Response } from 'express';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { Role } from 'src/shared/decorators/role.decorator';
 import { locationURL } from 'src/shared/functions/location-url';
+import { RoleGuard } from 'src/shared/guards/role.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entity/user.entity';
@@ -30,9 +33,11 @@ export class UsersController {
 
     }
 
+    @Role('admin')
+    @UseGuards(JwtAuthGuard, RoleGuard)
+    @UseInterceptors(ClassSerializerInterceptor)
     @Get('/user/:id')
-    public async getById(@Param('id', ParseIntPipe) id: number,
-        @Res({ passthrough: true }) res: Response): Promise<User> {
+    public async getById(@Param('id', ParseIntPipe) id: number): Promise<User> {
 
         const user = await this.userService.getById(id);
 
@@ -46,6 +51,7 @@ export class UsersController {
         return user;
     }
 
+    @UseInterceptors(ClassSerializerInterceptor)
     @Get('/users/:filter?')
     public async getAll(@Param('filter') filter?: string): Promise<User[]> {
 
@@ -59,6 +65,7 @@ export class UsersController {
             });
         }
     }
+
 
     @Put('/user/:id')
     public async update(@Param('id', ParseIntPipe) id: number,

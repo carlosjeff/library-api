@@ -16,5 +16,6 @@ import { UsersService } from './users.service';
         UsersService,
         HashService
     ],
+    exports: [UsersService]
 })
 export class UsersModule { }
