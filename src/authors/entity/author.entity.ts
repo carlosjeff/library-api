@@ -13,4 +13,6 @@ export class Author {
     @Column({ length: 150 })
     picture: string;
 
+    @OneToMany(() => Paper, (paper) => paper.author)
+    papers: Paper[]
 }

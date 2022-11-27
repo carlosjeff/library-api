@@ -20,8 +20,11 @@ import { UsersModule } from './users/users.module';
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
       entities: [User],
+      entities: [User, Author, Paper],
       synchronize: true
     }),
+    PapersModule,
+    AuthorsModule,
     UsersModule,
     AuthModule,
   ],
