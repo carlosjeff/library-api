@@ -1,4 +1,5 @@
 import { Body, ClassSerializerInterceptor, Controller, Delete, Get, HttpStatus, InternalServerErrorException, NotFoundException, Param, ParseIntPipe, Post, Put, Res, UseGuards, UseInterceptors } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiForbiddenResponse, ApiOkResponse, ApiParam, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { Response } from 'express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { GetTokenValues } from 'src/shared/decorators/get-token.decorator';
@@ -6,14 +7,18 @@ import { Role } from 'src/shared/decorators/role.decorator';
 import { locationURL } from 'src/shared/functions/location-url';
 import { RoleGuard } from 'src/shared/guards/role.guard';
 import { ErrorMessageHelper } from 'src/shared/helpers/error-message.helper';
+import { SwaggerHelper } from 'src/shared/helpers/swagger.helper';
 import { Payload } from 'src/shared/models/payload';
 import { roles } from 'src/shared/models/roles';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { PasswordDto, UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entity/user.entity';
 import { UsersService } from "./users.service";
 
+@ApiTags('Users')
+@ApiBearerAuth('access-token')
+@ApiForbiddenResponse({ description: SwaggerHelper.swaggerDescription().Forbidden })
+@ApiUnauthorizedResponse({ description: SwaggerHelper.swaggerDescription().Unauthorized })
 @Controller()
 @UseGuards(JwtAuthGuard, RoleGuard)
 export class UsersController {
@@ -22,6 +27,11 @@ export class UsersController {
 
     constructor(private readonly userService: UsersService) { }
 
+    @ApiBody({ type: CreateUserDto })
+    @ApiCreatedResponse({
+        status: HttpStatus.CREATED,
+        description: SwaggerHelper.swaggerDescription('Paper').create
+    })
     @UseInterceptors(ClassSerializerInterceptor)
     @Role(roles.admin)
     @Post('/user')
@@ -41,8 +51,7 @@ export class UsersController {
 
     }
 
-    @Role('admin')
-    @UseGuards(JwtAuthGuard, RoleGuard)
+    @ApiOkResponse({ description: SwaggerHelper.swaggerDescription('Paper').okGet })
     @Role(roles.admin)
     @UseInterceptors(ClassSerializerInterceptor)
     @Get('/user/:id')
@@ -59,6 +68,8 @@ export class UsersController {
         return user;
     }
 
+    @ApiParam({ name: "filter", required: false, allowEmptyValue: true })
+    @ApiOkResponse({ description: SwaggerHelper.swaggerDescription('Paper').okGet })
     @Role(roles.admin)
     @UseInterceptors(ClassSerializerInterceptor)
     @Get('/users/:filter?')
@@ -68,16 +79,14 @@ export class UsersController {
             return await this.userService.getAll(filter);
 
         } catch (error) {
-            throw new InternalServerErrorException({
-                statusCode: 500,
-                message: 'Não foi possivel buscar User!',
-            });
             throw new InternalServerErrorException(
                 this.httpErrorMessage.internalServerError('GET')
             );
         }
     }
 
+    @ApiBody({ type: PasswordDto })
+    @ApiOkResponse({ description: 'A Senha foi Alterada com Sucesso!' })
     @Role(roles.admin, roles.default)
     @Put('/user/password')
     public async updatePassword(@Body() Password: PasswordDto,
@@ -99,6 +108,8 @@ export class UsersController {
 
     }
 
+    @ApiBody({ type: UpdateUserDto })
+    @ApiOkResponse({ description: SwaggerHelper.swaggerDescription('Paper').okUpdate })
     @Role(roles.admin)
     @Put('/user/:id')
     public async update(@Param('id', ParseIntPipe) id: number,
@@ -114,10 +125,6 @@ export class UsersController {
         } catch (error) {
 
             if (error.statusCode === 500) {
-                throw new InternalServerErrorException({
-                    statusCode: 500,
-                    message: 'Não foi possivel atualizar o User!',
-                });
                 throw new InternalServerErrorException(
                     this.httpErrorMessage.internalServerError('UPDATE')
                 );
@@ -127,6 +134,8 @@ export class UsersController {
 
     }
 
+
+    @ApiOkResponse({ description: SwaggerHelper.swaggerDescription('Paper').okDelete })
     @Role(roles.admin)
     @Delete('/user/:id')
     public async delete(@Param('id', ParseIntPipe) id: number): Promise<string> {
@@ -138,10 +147,6 @@ export class UsersController {
 
         } catch (error) {
             if (error.statusCode === 500) {
-                throw new InternalServerErrorException({
-                    statusCode: 500,
-                    message: 'Não foi possivel Deletar o User!',
-                });
                 throw new InternalServerErrorException(
                     this.httpErrorMessage.internalServerError('DELETE')
                 );

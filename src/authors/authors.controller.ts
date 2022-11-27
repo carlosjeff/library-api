@@ -1,16 +1,22 @@
 import { Body, Controller, Delete, Get, HttpStatus, InternalServerErrorException, NotFoundException, Param, ParseIntPipe, Post, Put, Res, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiForbiddenResponse, ApiOkResponse, ApiParam, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { Response } from 'express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Role } from 'src/shared/decorators/role.decorator';
 import { locationURL } from 'src/shared/functions/location-url';
 import { RoleGuard } from 'src/shared/guards/role.guard';
 import { ErrorMessageHelper } from 'src/shared/helpers/error-message.helper';
+import { SwaggerHelper } from 'src/shared/helpers/swagger.helper';
 import { roles } from 'src/shared/models/roles';
 import { AuthorsService } from './authors.service';
 import { CreateAuthorDto } from './dto/create-author.dto';
 import { UpdateAuthorDto } from './dto/update-author.dto';
 import { Author } from './entity/author.entity';
 
+@ApiTags('Authors')
+@ApiBearerAuth('access-token')
+@ApiForbiddenResponse({ description: SwaggerHelper.swaggerDescription().Forbidden })
+@ApiUnauthorizedResponse({ description: SwaggerHelper.swaggerDescription().Unauthorized })
 @UseGuards(JwtAuthGuard, RoleGuard)
 @Controller()
 export class AuthorsController {
@@ -19,6 +25,11 @@ export class AuthorsController {
 
     constructor(private readonly authorsService: AuthorsService) { }
 
+    @ApiBody({ type: CreateAuthorDto })
+    @ApiCreatedResponse({
+        status: HttpStatus.CREATED,
+        description: SwaggerHelper.swaggerDescription('Author').create
+    })
     @Role(roles.admin)
     @Post('/author')
     public async create(@Body() createDto: CreateAuthorDto,
@@ -37,6 +48,8 @@ export class AuthorsController {
 
     }
 
+    @ApiParam({ name: "filter", required: false, allowEmptyValue: true })
+    @ApiOkResponse({ description: SwaggerHelper.swaggerDescription('Author').okGet })
     @Role(roles.default)
     @Get('/authors/:filter?')
     public async getAll(@Param('filter') filter: string): Promise<Author[]> {
@@ -52,6 +65,7 @@ export class AuthorsController {
 
     }
 
+    @ApiOkResponse({ description: SwaggerHelper.swaggerDescription('Author').okGet })
     @Role(roles.default)
     @Get('/author/:id')
     public async getById(@Param('id', ParseIntPipe) id: number): Promise<Author> {
@@ -65,6 +79,8 @@ export class AuthorsController {
         return author;
     }
 
+    @ApiBody({ type: UpdateAuthorDto })
+    @ApiOkResponse({ description: SwaggerHelper.swaggerDescription('Author').okUpdate })
     @Role(roles.admin)
     @Put('/author/:id')
     public async update(@Param('id', ParseIntPipe) id: number,
@@ -87,6 +103,7 @@ export class AuthorsController {
         }
     }
 
+    @ApiOkResponse({ description: SwaggerHelper.swaggerDescription('Author').okUpdate })
     @Role(roles.admin)
     @Delete('/author/:id')
     public async delete(@Param('id', ParseIntPipe) id: number): Promise<string> {

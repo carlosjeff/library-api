@@ -1,11 +1,12 @@
-import { Body, Controller, Post } from '@nestjs/common';
 import { Body, Controller, Post, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ApiTags } from '@nestjs/swagger';
 import { ErrorMessageHelper } from 'src/shared/helpers/error-message.helper';
 import { EncryptionService } from 'src/shared/services/encryption.service';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
 
+@ApiTags('Login')
 @Controller()
 export class AuthController {
 
