@@ -14,10 +14,11 @@ export class AuthService {
 
     public async login(data: AuthDto) {
         return this.userService.getByEmail(data.email).then(async (result: User) => {
-            console.log(result);
-            if (result) null
+            if (!result) {
+                return null;
+            }
 
-            if (this.hashService.compare(data.password, result.password)) {
+            if (await this.hashService.compare(data.password, result.password)) {
                 const payload: Payload = {
                     sub: result.name,
                     email: result.email,
@@ -26,6 +27,7 @@ export class AuthService {
                 };
                 return payload;
             } else {
+
                 return null;
             }
 

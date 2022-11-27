@@ -1,5 +1,7 @@
 import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ErrorMessageHelper } from 'src/shared/helpers/error-message.helper';
 import { EncryptionService } from 'src/shared/services/encryption.service';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
@@ -15,8 +17,7 @@ export class AuthController {
     @Post('/auth/login')
     public async login(@Body() user: AuthDto) {
         return await this.authService.login(user).then(async result => {
-            if (result.email) {
-                // return { "token": this.jwtService.sign(result) }
+            if (result?.email) {
                 return await this.encryptionService.encrypt(JSON.stringify(result))
                     .then(async (resultData) => {
                         var JSONB = require('json-buffer');
@@ -25,7 +26,9 @@ export class AuthController {
                         return { "token": this.jwtService.sign(payload) };
                     });
             } else {
-                return result;
+                throw new UnauthorizedException(
+                    ErrorMessageHelper.http('login').Unauthorized
+                );
             }
         })
     }

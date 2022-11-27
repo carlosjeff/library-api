@@ -16,7 +16,7 @@ dotenv.config();
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
       secret: process.env.SECRET_KEY,
-      signOptions: { expiresIn: '1200s' },
+      signOptions: { expiresIn: process.env.TIME_TOKEN },
     })
   ],
   controllers: [
