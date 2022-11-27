@@ -3,8 +3,6 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { AuthorsModule } from './authors/authors.module';
 import { Author } from './authors/entity/author.entity';
@@ -30,7 +28,6 @@ import { UsersModule } from './users/users.module';
       username: process.env.DATABASE_USER,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
-      entities: [User],
       entities: [User, Author, Paper],
       synchronize: true
     }),
@@ -39,9 +36,8 @@ import { UsersModule } from './users/users.module';
     UsersModule,
     AuthModule,
   ],
-  controllers: [AppController],
+  controllers: [],
   providers: [
-    AppService],
     {
       provide: APP_GUARD,
       useClass: UserThrottlerGuard
