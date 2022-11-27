@@ -10,11 +10,13 @@ import { User } from './entity/user.entity';
 import { UsersService } from "./users.service";
 
 @Controller()
+@UseGuards(JwtAuthGuard, RoleGuard)
 export class UsersController {
 
     constructor(private readonly userService: UsersService) { }
 
     @UseInterceptors(ClassSerializerInterceptor)
+    @Role(roles.admin)
     @Post('/user')
     public async create(@Body() createDto: CreateUserDto,
         @Res({ passthrough: true }) res: Response): Promise<User> {
@@ -35,6 +37,7 @@ export class UsersController {
 
     @Role('admin')
     @UseGuards(JwtAuthGuard, RoleGuard)
+    @Role(roles.admin)
     @UseInterceptors(ClassSerializerInterceptor)
     @Get('/user/:id')
     public async getById(@Param('id', ParseIntPipe) id: number): Promise<User> {
@@ -51,6 +54,7 @@ export class UsersController {
         return user;
     }
 
+    @Role(roles.admin)
     @UseInterceptors(ClassSerializerInterceptor)
     @Get('/users/:filter?')
     public async getAll(@Param('filter') filter?: string): Promise<User[]> {
@@ -67,6 +71,7 @@ export class UsersController {
     }
 
 
+    @Role(roles.admin)
     @Put('/user/:id')
     public async update(@Param('id', ParseIntPipe) id: number,
         @Body() updateDto: UpdateUserDto,
@@ -91,6 +96,7 @@ export class UsersController {
 
     }
 
+    @Role(roles.admin)
     @Delete('/user/:id')
     public async delete(@Param('id', ParseIntPipe) id: number): Promise<string> {
 
