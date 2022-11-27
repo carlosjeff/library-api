@@ -16,7 +16,7 @@ export class TokenExpiryTimeInHeaderInterceptor implements NestInterceptor {
         encryptionService.info(JSON.parse(request['user'])).then(result => {
 
           let time = Math.abs(new Date(result.exp * 1000).getTime() - new Date().getTime());
-          response.setHeader("token_time", time)
+          response.setHeader("token-time", time)
           return data
         })))
     }
