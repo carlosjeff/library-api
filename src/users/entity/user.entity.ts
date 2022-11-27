@@ -20,6 +20,8 @@ export class User {
     @Column({ length: 20 })
     role: string;
 
+
+
     constructor(partial: Partial<User>) {
         Object.assign(this, partial);
     }

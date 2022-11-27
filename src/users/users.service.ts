@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { HashService } from 'src/shared/services/hash.service';
 import { Like, Repository, UpdateResult } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { PasswordDto, UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entity/user.entity';
 
 @Injectable()
@@ -43,6 +43,19 @@ export class UsersService {
         if (!(await this.getById(id))) throw new NotFoundException(`Id ${id} não encontrado`);
 
         return await this.usersRepository.update({ id }, updateDto)
+
+    }
+
+
+    public async updatePassword(email: string, updateDto: PasswordDto): Promise<UpdateResult> {
+
+        if (!(await this.getByEmail(email))) throw new NotFoundException(`User não encontrado`);
+
+        return await this.hashService.hashing(updateDto.password)
+            .then(hash =>
+                this.usersRepository.update({ email: email }, { password: hash }));
+
+
 
     }
 
