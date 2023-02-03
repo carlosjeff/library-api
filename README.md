@@ -2,7 +2,6 @@
 
 Projeto proposto para o desenvolvimento técnico em Api com o intuito desse projeto ser uma livraria de artigos onde poderá cadastra Usuários que poderão cadastra e listar autores e artigos dependo do seu nível de acesso na api
 
-Deploy: https://people-crud-api-production.up.railway.app/
 
 ## Começando
 
